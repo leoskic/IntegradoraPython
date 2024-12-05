@@ -1,0 +1,13 @@
+[
+    {
+        "no_manga": "01",
+        "user": "01",
+        "sensores": [
+            {
+                "tipo": "MP",
+                "data": "57",
+                "date": "hoy"
+            }
+        ]
+    }
+]

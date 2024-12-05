@@ -1,0 +1,159 @@
+from sensor import Sensor
+from mangas import Mangas
+from mongo_conect import Mongoconection
+
+class Interfaz:
+    
+        def __init__(self, mangas= None):
+            # Inicializar lista objeto 
+            mongo = self.ping()
+            
+            if mongo and mangas is None:
+                print("Coneccion estbalecida")
+                self.mongo = True
+                self.mangas = Mangas()
+                self.getOfMongo()
+                try:
+                    self.getOfJson()
+                    self.saveInJson(True)
+                    self.saveMongo()
+                except:
+                    pass
+                self.getArchivo = False
+            else:
+                self.mongo = False
+                if mangas is None:
+                    self.getArchivo = True
+                    self.mangas = Mangas()
+                #Verificar si existe el archivo
+                    try:
+                        self.getOfJson()
+                    except:
+                        pass
+                    
+                else:
+                    self.mongo = False
+                    self.getArchivo = False
+                    self.mangas = mangas
+            
+        def menu(self):
+            if self.getArchivo:
+                self.saveInJson()
+            print("--------------Interfaz Grupo--------------")
+            print("Elige una opcion \n 1.Crear Grupo \n 2.Ver Grupos \n 3.Borrar Grupo \n 4.Actualizar Grupo \n 5.Salir ")
+            case = input("Inserta el numero de la opcion que deseas usar:")
+            case = int(case)
+            if case == 1:
+                self.crear()
+            elif case == 2:
+                self.showGrupo()
+                self.menu()
+            elif case == 3:
+                 print("Sesion finalizada.")
+            else:
+                print("Error!: Opcion no diponible \n Verifique que sea solo un numero \n Verifique que su numero este en las opciones")
+                self.menu()
+            
+        def form(self, sensores = Sensor()):
+            
+            numero = input("numero:")
+            usuario = input("Usuario:")
+            
+                
+            manga = Mangas(numero, usuario, sensores )
+            return manga
+            
+        def crear(self):
+            if not self.mangas.objetos:
+                self.addGrupo()
+            else:
+                self.update()
+            self.menu()
+        
+        def addGrupo(self):
+            nmanga = self.form()
+            self.mangas.agregar_objeto(nmanga)
+            print("Se agrego de forma exitosa!!")
+            insert=nmanga.getDict()
+            if self.mongo:
+                self.saveMongo(insert)
+            self.menu()
+            
+        def showGrupo(self):
+            if not self.mangas.objetos:
+                print("Vacio")
+            else:
+                print(self.mangas)
+                
+        
+        def deletGrupo(self):
+            """Obtener indice y borrar"""
+            self.showGrupo
+            index = input("Indice de Grupo que deseas borrar?:")
+            index = int(index) - 1
+            sec = self.grupos.__len__()
+            
+            if sec < index:
+                print("No hay grupos")
+            elif index > sec:
+                print("Aluno inexistente")
+            else:
+                self.grupos.eliminar_objeto(index)
+            if self.mongo:
+                self.dropMongo()
+                self.saveMongo()   
+            self.menu()
+            
+            
+        def update(self):
+            self.showGrupo()
+            index = 1
+            sensor = self.mangas[0].sensor
+            manga = self.form(sensor)
+            dict1 = self.mangas[0].getDict()
+            dict2 = manga.getDict()
+            if self.mongo:
+                self.updateMongo(dict1, dict2)
+            index=int(index)-1
+            self.mangas.__setitem__(index, manga) 
+            print("Se actualizo de forma exitosa!!")
+            
+        def saveInJson(self, clean=False):
+
+            Nombre = "datos_local.json"
+            if clean:
+                x = Mangas()
+                x.saveJson(Nombre)
+            else:
+                self.mangas.saveJson(Nombre)
+            
+        def getOfJson(self, Nombre="datos_local.json"):
+            self.mangas.loadJson(Nombre)
+            
+        def saveMongo(self, grupo=None):
+            conexion= Mongoconection("Mangas")
+            if grupo is None:
+                data = self.mangas.getDict()
+            else:
+                data = grupo
+            conexion.insertDoc(data)
+            
+        def updateMongo(self, query, data):
+            conexion= Mongoconection("Mangas")
+            conexion.update(query, data)    
+            
+        def getOfMongo(self):
+            conexion= Mongoconection("Mangas")
+            cargar = conexion.findDoc()
+            self.mangas.toObject(cargar)
+            
+        def ping(self):
+            conexion= Mongoconection("Mangas")
+            validar=conexion.ping()
+            return validar 
+
+if __name__ == "__main__":
+    
+  
+    prueb = Interfaz()
+    prueb.menu()
