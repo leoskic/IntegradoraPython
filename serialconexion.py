@@ -8,7 +8,7 @@ from mongo_conect import Mongoconection
 from mangas import Mangas
 
 class ConexionSerial:
-    def __init__(self, puerto="COM10", tasa_baudios=9600):
+    def __init__(self, puerto="/dev/ttyUSB0", tasa_baudios=9600):
         self.tasa = tasa_baudios
         self.puerto = puerto
         self.db = Mongoconection("Mangas", "Mangas", "mongodb+srv://leoskic:0000@cluster0.zqrur.mongodb.net/")
