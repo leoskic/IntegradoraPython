@@ -98,7 +98,4 @@ class ConexionSerial:
 
 if __name__ == "__main__":
     conexion = ConexionSerial()
-    fecha = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
-    sen = Sensor("PU01", "35", fecha)
-    
-    conexion.actualizarSensores(sen)
+    conexion.leer_puerto()
